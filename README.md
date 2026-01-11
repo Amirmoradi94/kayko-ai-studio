@@ -1,1 +1,1 @@
-# auto-studio-n8n
+# kayko-studio-n8n
