@@ -5,18 +5,19 @@ services:
     image: n8nio/n8n:latest
     container_name: n8n
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
       - N8N_BASIC_AUTH_PASSWORD=secretpassword123
       - TZ=America/Toronto
       - NODE_ENV=production
-      - WEBHOOK_URL=https://kayko-ai-studio.xyz
+      - WEBHOOK_URL=https://devnook.xyz/kayko-studio
       - N8N_SECURE_COOKIE=true
       - N8N_PROTOCOL=https
-      - N8N_HOST=kayko-ai-studio.xyz
-      - N8N_EDITOR_BASE_URL=https://kayko-ai-studio.xyz
+      - N8N_HOST=devnook.xyz
+      - N8N_PATH=/kayko-studio/
+      - N8N_EDITOR_BASE_URL=https://devnook.xyz/kayko-studio/
     volumes:
       - n8n_data:/home/node/.n8n
       - ./local-files:/files
