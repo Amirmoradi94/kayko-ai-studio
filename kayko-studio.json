@@ -1,0 +1,2880 @@
+{
+  "name": "kayko-ai-studio",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1600,
+        64
+      ],
+      "id": "6f2b771d-7ba8-49d0-a849-e9adbb3c91d8",
+      "name": "Telegram Trigger",
+      "webhookId": "cd24065d-ff0d-42b6-a426-bb5fa0d02dbb",
+      "credentials": {
+        "telegramApi": {
+          "id": "vQDbVsgg2yxCvaqd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=97781825",
+        "text": "=🎬 Choose your favorite viral variation: \n\nScenario 1: \n{{ $json.scenario1 }}\n\nScenario 2: \n{{ $json.scenario2 }}\n\nScenario 3: \n{{ $json.scenario3 }} \n\nClick a button below to generate the video for that choice!",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "1️⃣ Select Scenario 1",
+                    "additionalFields": {
+                      "callback_data": "=scenario1"
+                    }
+                  },
+                  {
+                    "text": "2️⃣ Select Scenario 2",
+                    "additionalFields": {
+                      "callback_data": "=scenario2"
+                    }
+                  },
+                  {
+                    "text": "3️⃣ Select Scenario 3",
+                    "additionalFields": {
+                      "callback_data": "=scenario3"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "disable_notification": true
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        1264
+      ],
+      "id": "b8e42aeb-59ac-4af5-ac4c-81cd22869bdf",
+      "name": "Send 3 video scenarios",
+      "webhookId": "1025f32c-47d9-4537-ab5c-9e61987479c2",
+      "credentials": {
+        "telegramApi": {
+          "id": "vQDbVsgg2yxCvaqd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6fda3b8c-1af5-4cdd-8ec9-205e4449d485",
+              "leftValue": "={{ $json.callback_query === undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1168,
+        64
+      ],
+      "id": "36534041-686a-40cc-9201-08ab8a39a786",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the text content from Gemini API response\nconst fullText = $input.item.json.content.parts[0].text;\n\n// Extract scenarios using regex\nconst scenario1Match = fullText.match(/scenario1:\\s*(.+?)(?=scenario2:|$)/is);\nconst scenario2Match = fullText.match(/scenario2:\\s*(.+?)(?=scenario3:|$)/is);\nconst scenario3Match = fullText.match(/scenario3:\\s*(.+?)(?=$)/is);\n\n// Return array of three scenario items\nreturn [\n  { json: { scenario1: scenario1Match ? scenario1Match[1].trim() : \"\" } },\n  { json: { scenario2: scenario2Match ? scenario2Match[1].trim() : \"\" } },\n  { json: { scenario3: scenario3Match ? scenario3Match[1].trim() : \"\" } }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        1264
+      ],
+      "id": "7d379348-083f-44ac-9f32-fcfe5369c743",
+      "name": "Scenarios Splitter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d6988123-8b94-4831-88a8-3b432a87158f",
+              "name": "selected_scenario",
+              "value": "={{ $json.callback_query.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -864,
+        256
+      ],
+      "id": "103299db-7bae-46b9-b067-df6abf6d00a2",
+      "name": "Parse Callback"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data}}",
+                    "rightValue": "edit_video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "333c7e9f-b8c5-45a9-b981-17b2c2f90c2f"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fc84422f-e76c-40ba-bd5a-d5bf6ecc52b8",
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "rightValue": "post_video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fc8d4795-5867-4001-a075-d41ffe6cba6a",
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        256
+      ],
+      "id": "33ef5ce4-d4fb-490d-b8ba-dc3121e63c9c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "=97781825",
+        "text": "=What would you like to change?  \n\nReply with your instructions.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        240
+      ],
+      "id": "aa0ff9c6-1d2b-407b-96c6-e74a5ef1eba7",
+      "name": "What changes?",
+      "webhookId": "b1aa3bad-96aa-41bd-86c3-8d2ef0e3cc8a",
+      "credentials": {
+        "telegramApi": {
+          "id": "vQDbVsgg2yxCvaqd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        64,
+        1264
+      ],
+      "id": "aad896e0-c11b-4d47-8189-37d3e9fdfbcf",
+      "name": "clear all rows",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "97781825",
+            "scenario1": "={{ $('Scenarios Splitter').all()[0].json.scenario1 }}",
+            "scenario2": "={{ $('Scenarios Splitter').all()[1].json.scenario2 }}",
+            "scenario3": "={{ $('Scenarios Splitter').all()[2].json.scenario3 }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario1",
+              "displayName": "scenario1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "scenario2",
+              "displayName": "scenario2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "scenario3",
+              "displayName": "scenario3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "selected_scenario",
+              "displayName": "selected_scenario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "waiting_for_edit",
+              "displayName": "waiting_for_edit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        368,
+        1264
+      ],
+      "id": "76e4d0f6-9619-426d-a341-a6a569ad7f2f",
+      "name": "Insert new scenarios into db",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ef8ad89-40df-42b0-aa39-a9c4ec2bf1bd",
+              "name": "user_input",
+              "value": "={{ $json.message ? $json.message.text : \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1376,
+        64
+      ],
+      "id": "df717157-f864-41b3-86c9-319e5b944eb8",
+      "name": "get_user_input"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "=You are a viral content analyzer specialized in identifying the key elements that make short-form videos successful on social media platforms like Instagram Reels, TikTok, and YouTube Shorts.\n\nYour task is to analyze the provided video and generate 3 new viral scenario concepts inspired by the source material.\n\nANALYSIS PROCESS:\n1. Identify the MAIN CHARACTER (animal, person, object) - this must be preserved in all scenarios\n2. Identify the CORE ACTION the character is performing (e.g., applying makeup, cooking, delivering mail)\n3. Note the comedic or entertainment element (surprise, contrast, timing, absurdity, relatability, etc.)\n4. Understand what makes this video shareable and memorable\n\nGENERATION REQUIREMENTS:\n- **PRESERVE THE MAIN CHARACTER**: If the source video features an orange cat, ALL 3 scenarios must feature the same orange cat with similar appearance details\n- **PRESERVE THE CORE ACTION**: Keep the main activity but introduce variations (e.g., if cat applies makeup, keep makeup application but change the product, location, or add a funny twist during the action)\n- Create 3 distinct scenarios that maintain the viral formula while adding creative variations\n- Each scenario should feel SIMILAR to the source (same vibe, same character) but NOT identical\n- Add unexpected moments, challenges, or humorous complications during the main action\n- Maintain the same entertainment category (funny, wholesome, unexpected, etc.)\n- Keep scenarios concise, visual, and suitable for 10 second videos\n- Focus on clear, actionable descriptions that can be converted to video\n\nOUTPUT FORMAT (strictly follow this structure):\nscenario1: [Detailed description featuring THE SAME CHARACTER doing THE SAME TYPE OF ACTION with variation 1, including setting, action details, and punchline/payoff]\n\nscenario2: [Detailed description featuring THE SAME CHARACTER doing THE SAME TYPE OF ACTION with variation 2, including setting, action details, and punchline/payoff]\n\nscenario3: [Detailed description featuring THE SAME CHARACTER doing THE SAME TYPE OF ACTION with variation 3, including setting, action details, and punchline/payoff]\n\nIMPORTANT: \n- Each description should be 2-4 sentences\n- Must preserve character appearance and core action from source\n- Add variations through: different objects, locations, funny complications, unexpected outcomes\n- Emphasize visual actions over dialogue\n- Specific enough for text-to-video generation\n",
+        "videoUrls": "={{ $('get_reel_url').item.json.reel_url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -544,
+        1264
+      ],
+      "id": "477ba960-029d-49a4-9e07-25f6db7ad347",
+      "name": "Analyze video",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ebWdbcuuG0VgDDfC",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        48
+      ],
+      "id": "98ad3714-3229-4663-8b2a-7ef22d399c97",
+      "name": "get_data_from_db_1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ef8ad89-40df-42b0-aa39-a9c4ec2bf1bd",
+              "name": "waiting_for_edit",
+              "value": "={{ $json.waiting_for_edit }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -752,
+        48
+      ],
+      "id": "0c036c6d-5699-43f9-bf30-320a1df3160c",
+      "name": "get_edit_flag"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6fda3b8c-1af5-4cdd-8ec9-205e4449d485",
+              "leftValue": "={{ $json.waiting_for_edit }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -592,
+        48
+      ],
+      "id": "46640e4b-43b1-48e7-80a4-e015260b22f1",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Error while generating the video: {{ $json.message || data.failMsg }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        672
+      ],
+      "id": "e73a3b16-8455-4541-bf16-cc246c67a419",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "defd1dcb-4c75-47bc-83c4-bb29f6d1b1fd",
+              "name": "task_id",
+              "value": "={{ $json.data.taskId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        864
+      ],
+      "id": "a2d19e8b-2a00-451c-9f8b-d576eb05497c",
+      "name": "Set task id"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        1056
+      ],
+      "id": "22e62648-01b3-4c0e-8bfb-f673405c6d85",
+      "name": "Wait",
+      "webhookId": "be790b26-e203-4695-859f-01bca4cbef18"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c335417b-f320-4f9b-a5c8-48d7b6e8f0e6",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        768
+      ],
+      "id": "1ec1ec4d-a657-405b-b280-7fb3e99d5f72",
+      "name": "Successful start?"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('Set task id').item.json.task_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        944,
+        864
+      ],
+      "id": "251214a0-1f11-4df5-b979-003c20349c75",
+      "name": "Get status of the video",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RkW3f5rkycQNGtk0",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4b32c886-1289-402c-9288-e565b03b4d05",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "fail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b6b8b96b-ed7c-4df8-9d11-bc0d6cbceb6b",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ['waiting', 'queuing', 'generating'].includes($json.data.state) }}",
+                    "rightValue": "waiting",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "e08c646f-f98d-458a-8d27-ff73e48b2c00"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "waiting"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1152,
+        848
+      ],
+      "id": "9cc5ee26-25c5-406f-9dbb-ece2e9481ebf",
+      "name": "Route based on the status"
+    },
+    {
+      "parameters": {
+        "hostUrl": "graph-video.facebook.com",
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "=17841479129687314",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "video_url",
+                "value": "={{ $json.video_url }}"
+              },
+              {
+                "name": "caption",
+                "value": "=hello"
+              },
+              {
+                "name": "media_type",
+                "value": "REELS"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        432
+      ],
+      "id": "69e1f675-2971-4c3c-ac7f-d24f2fbf8d01",
+      "name": "Upload video to Instagram",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "khyjrxXt1LTdq9EI",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hostUrl": "graph-video.facebook.com",
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "=17841479129687314",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        848,
+        416
+      ],
+      "id": "cad8814f-855d-4f75-9107-65b45f04dcee",
+      "name": "Post video post to Instagram",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "khyjrxXt1LTdq9EI",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=resumable",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Upload-Content-Type",
+              "value": "video/mp4"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "RAW/JSON",
+        "body": "={{ \n  JSON.stringify(\n    {\n      \"snippet\": {\n        title: $('Create video prompt').last().json.output.video_title,\n        description: $('Create video prompt').last().json.output.video_description,\n        tags: \"\",\n        categoryId: \"24\",\n        defaultLanguage: \"en\",\n        defaultAudioLanguage: \"en\"\n      },\n      status: {\n        privacyStatus: \"public\",\n        license: \"youtube\",\n        embeddable: true,\n        publicStatsViewable: true,\n        madeForKids: false\n      }\n    }\n  ) \n}}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "94d47a68-2f39-4438-8ebd-8ff7c6a635a1",
+      "name": "Start Youtube upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1136,
+        448
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Download the video1').item.json.headers.location }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "video/mp4"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "ea5510eb-380b-4826-8cfe-7be89937f879",
+      "name": "Upload video to YouTube",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1584,
+        448
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Setup video url').last().json.video_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        448
+      ],
+      "id": "7a4935b7-fada-4b25-bb18-fedfb2716189",
+      "name": "Download the video1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const resultData = $json.data.resultJson\nconst video_url = JSON.parse(resultData).resultUrls[0];\n\nreturn {\n  json: {\n    video_url: video_url\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        864
+      ],
+      "id": "6ea909b4-d91f-4b9d-aebc-13eaab46169e",
+      "name": "Setup video url"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n\n  JSON.stringify({\n  \"model\": \"sora-2-text-to-video\",\n  \"callBackUrl\": \"https://your-domain.com/api/callback\",\n  \"input\": {\n    \"prompt\": $json.video_prompt,\n    \"aspect_ratio\": \"portrait\",\n    \"n_frames\": \"10\",\n    \"remove_watermark\": true\n  }\n}, null, 2)\n\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        336,
+        768
+      ],
+      "id": "9ed8bc8e-48fb-4ef6-95cc-13dee28eea31",
+      "name": "Start generating the video",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RkW3f5rkycQNGtk0",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        768
+      ],
+      "id": "1bce25a3-5dd3-4b13-84c3-d2b9d72645cf",
+      "name": "get_data_from_db_2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ef8ad89-40df-42b0-aa39-a9c4ec2bf1bd",
+              "name": "video_prompt",
+              "value": "={{ $node[\"get_data_from_db_2\"].json[ $node[\"Parse Callback\"].json.selected_scenario ] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        768
+      ],
+      "id": "ab5e44dd-efc6-42ce-96f8-c4c5fb70b447",
+      "name": "get_video_prompt"
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "=97781825",
+        "binaryData": true,
+        "binaryPropertyName": "video",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Edit video",
+                    "additionalFields": {
+                      "callback_data": "=edit_video"
+                    }
+                  },
+                  {
+                    "text": "Confirm & Post",
+                    "additionalFields": {
+                      "callback_data": "=post_video"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "disable_notification": true
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2064,
+        864
+      ],
+      "id": "42a2bc46-e6c7-44d8-9f70-1280572f8837",
+      "name": "Send video",
+      "webhookId": "1025f32c-47d9-4537-ab5c-9e61987479c2",
+      "credentials": {
+        "telegramApi": {
+          "id": "vQDbVsgg2yxCvaqd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        432
+      ],
+      "id": "a15ba3ca-c922-46c2-b50d-21bbf7b1671e",
+      "name": "get_data_from_db_3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ef8ad89-40df-42b0-aa39-a9c4ec2bf1bd",
+              "name": "video_url",
+              "value": "={{ $json.video_url}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        432
+      ],
+      "id": "5c1fe29f-6c46-4da1-bafd-f9570c4ba2a6",
+      "name": "get_video_url"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        496
+      ],
+      "id": "39c31f37-251b-4956-8158-5dd12cef9418",
+      "name": "Wait1",
+      "webhookId": "be790b26-e203-4695-859f-01bca4cbef18"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "v23.0",
+        "node": "={{ $json.id }}",
+        "options": {
+          "fields": {
+            "field": [
+              {
+                "name": "id"
+              },
+              {
+                "name": "status"
+              },
+              {
+                "name": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "id": "8a3707f8-1995-44d0-9826-f2ae0e9b01db",
+      "name": "Check Status Of Media Before Uploaded",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        224,
+        432
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "khyjrxXt1LTdq9EI",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0304efee-33b2-499e-bad1-9238c1fc2999",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0cb2a3ed-8d16-48d2-a83c-d2a325ec041d",
+      "name": "If media status is finished",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        416,
+        432
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ef8ad89-40df-42b0-aa39-a9c4ec2bf1bd",
+              "name": "video_prompt",
+              "value": "=video prompt:\n{{ $node[\"get_data_from_db_1\"].json.video_prompt }} \n\nAdditional instruction from user to consider:\n{{ $node[\"get_user_input\"].json.user_input }} ",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        32
+      ],
+      "id": "d46c93f3-0c1d-46bb-a616-b4c7fb922eca",
+      "name": "get_edit_instruction"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.video_url }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "video"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1808,
+        864
+      ],
+      "id": "7a8c85ea-2627-46a9-86bb-e93675047587",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "path": "instagram-dm",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1424,
+        1104
+      ],
+      "id": "b53a03bb-397d-4f85-a2d9-e755922fe2ab",
+      "name": "Webhook",
+      "webhookId": "8dcfac13-4542-46aa-bb54-4b40a76a884d"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log the incoming data\nconsole.log('Webhook received:', $input.all());\n\n// Return the data as-is for testing\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        1104
+      ],
+      "id": "7afd0cb8-6449-43f3-ad21-01a871d1686d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1216,
+        1104
+      ],
+      "id": "e590fd68-e2b6-44ff-ba13-6aef6e32ae4b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "instagram-dm",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1440,
+        1264
+      ],
+      "id": "44d9f5d4-c530-4242-8280-10cdc12f7528",
+      "name": "Webhook1",
+      "webhookId": "8dcfac13-4542-46aa-bb54-4b40a76a884d"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1232,
+        1264
+      ],
+      "id": "b66e5df1-0435-4f3a-b425-7e4cdc4c0039",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "video_prompt": "={{ $json.video_prompt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "scenario1",
+              "displayName": "scenario1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario2",
+              "displayName": "scenario2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario3",
+              "displayName": "scenario3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "waiting_for_edit",
+              "displayName": "waiting_for_edit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        0,
+        768
+      ],
+      "id": "b0cc3e8a-eece-442a-ab10-8d2c4ed2cffb",
+      "name": "Insert video_prompt to db",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "67eab8ab-6666-4ff8-83e5-203be3131e5e",
+              "name": "reel_url",
+              "value": "={{ $json.body.entry[0].messaging[0].message.attachments[0].payload.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        1264
+      ],
+      "id": "47bf756b-3796-4dc9-84d9-e62367a6661a",
+      "name": "get_reel_url"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "reel_url": "={{ $json.reel_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario1",
+              "displayName": "scenario1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario2",
+              "displayName": "scenario2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario3",
+              "displayName": "scenario3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "waiting_for_edit",
+              "displayName": "waiting_for_edit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "reel_url",
+              "displayName": "reel_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        1264
+      ],
+      "id": "38f050e3-5c01-4740-812d-854a0577e2cc",
+      "name": "insert_reel_url",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "video_url": "={{ $json.video_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario1",
+              "displayName": "scenario1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario2",
+              "displayName": "scenario2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario3",
+              "displayName": "scenario3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "waiting_for_edit",
+              "displayName": "waiting_for_edit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reel_url",
+              "displayName": "reel_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        864
+      ],
+      "id": "bbda5083-bfe0-4e5e-bc57-dff6e9f78422",
+      "name": "insert_video_url",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "waiting_for_edit": true
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario1",
+              "displayName": "scenario1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario2",
+              "displayName": "scenario2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario3",
+              "displayName": "scenario3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "waiting_for_edit",
+              "displayName": "waiting_for_edit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "reel_url",
+              "displayName": "reel_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        240
+      ],
+      "id": "3228a9b5-b2db-47b9-a09f-0f825d34f1f3",
+      "name": "update_editing_flag",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "defd1dcb-4c75-47bc-83c4-bb29f6d1b1fd",
+              "name": "task_id",
+              "value": "={{ $json.data.taskId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "34b2214b-1056-4ed1-ac27-ba58e46a8b46",
+      "name": "Set task id1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        176
+      ],
+      "id": "c05c034a-24f7-4da0-9597-9b57aec427e8",
+      "name": "Wait2",
+      "webhookId": "be790b26-e203-4695-859f-01bca4cbef18"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c335417b-f320-4f9b-a5c8-48d7b6e8f0e6",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        -112
+      ],
+      "id": "d1593153-14c9-436f-91af-e11a18d6b81e",
+      "name": "Successful start?1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('Set task id1').item.json.task_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        640,
+        -16
+      ],
+      "id": "e4871dbe-9d82-4b6d-9964-b3bb8a903734",
+      "name": "Get status of the video1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RkW3f5rkycQNGtk0",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4b32c886-1289-402c-9288-e565b03b4d05",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "fail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b6b8b96b-ed7c-4df8-9d11-bc0d6cbceb6b",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ['waiting', 'queuing', 'generating'].includes($json.data.state) }}",
+                    "rightValue": "waiting",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "e08c646f-f98d-458a-8d27-ff73e48b2c00"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "waiting"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        848,
+        -32
+      ],
+      "id": "ccffbe59-7740-43d1-a6a8-e87a07edbc76",
+      "name": "Route based on the status1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const resultData = $json.data.resultJson\nconst video_url = JSON.parse(resultData).resultUrls[0];\n\nreturn {\n  json: {\n    video_url: video_url\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        -16
+      ],
+      "id": "fa9310e7-911d-417b-ab07-b48eec140b04",
+      "name": "Setup video url1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n\n  JSON.stringify({\n  \"model\": \"sora-2-text-to-video\",\n  \"callBackUrl\": \"https://your-domain.com/api/callback\",\n  \"input\": {\n    \"prompt\": $json.video_prompt,\n    \"aspect_ratio\": \"portrait\",\n    \"n_frames\": \"10\",\n    \"remove_watermark\": true\n  }\n}, null, 2)\n\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        32,
+        -112
+      ],
+      "id": "8db0c388-e943-4722-ac5d-25629e440e12",
+      "name": "Start generating the video1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RkW3f5rkycQNGtk0",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "=97781825",
+        "binaryData": true,
+        "binaryPropertyName": "video",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Edit video",
+                    "additionalFields": {
+                      "callback_data": "=edit_video"
+                    }
+                  },
+                  {
+                    "text": "Confirm & Post",
+                    "additionalFields": {
+                      "callback_data": "=post_video"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "disable_notification": true
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        -16
+      ],
+      "id": "d45eb09f-5481-482c-9086-fad9d6af868a",
+      "name": "Send video1",
+      "webhookId": "1025f32c-47d9-4537-ab5c-9e61987479c2",
+      "credentials": {
+        "telegramApi": {
+          "id": "vQDbVsgg2yxCvaqd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.video_url }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "video"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1504,
+        -16
+      ],
+      "id": "13ecd18c-172d-4291-8b80-9bf9e746e38a",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "DBPoTlwiq3kOQBlz",
+          "mode": "list",
+          "cachedResultName": "kayko-studio",
+          "cachedResultUrl": "/projects/isu9W8drUrSE5Cvk/datatables/DBPoTlwiq3kOQBlz"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "97781825"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "video_url": "={{ $json.video_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario1",
+              "displayName": "scenario1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario2",
+              "displayName": "scenario2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "scenario3",
+              "displayName": "scenario3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "waiting_for_edit",
+              "displayName": "waiting_for_edit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reel_url",
+              "displayName": "reel_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -16
+      ],
+      "id": "c93837c4-ce52-4c2e-a733-e497c10fc1f5",
+      "name": "insert_video_url1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Error while generating the video: {{ $json.message || data.failMsg }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -224
+      ],
+      "id": "217adae3-6438-42b8-8e5a-074c3fc78660",
+      "name": "Stop and Error1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "get_user_input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "get_data_from_db_1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scenarios Splitter": {
+      "main": [
+        [
+          {
+            "node": "clear all rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Callback": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "update_editing_flag",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get_data_from_db_3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get_data_from_db_2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clear all rows": {
+      "main": [
+        [
+          {
+            "node": "Insert new scenarios into db",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert new scenarios into db": {
+      "main": [
+        [
+          {
+            "node": "Send 3 video scenarios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_user_input": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze video": {
+      "main": [
+        [
+          {
+            "node": "Scenarios Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_data_from_db_1": {
+      "main": [
+        [
+          {
+            "node": "get_edit_flag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_edit_flag": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "get_edit_instruction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Set task id": {
+      "main": [
+        [
+          {
+            "node": "Get status of the video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get status of the video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Successful start?": {
+      "main": [
+        [
+          {
+            "node": "Set task id",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get status of the video": {
+      "main": [
+        [
+          {
+            "node": "Route based on the status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route based on the status": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Setup video url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload video to Instagram": {
+      "main": [
+        [
+          {
+            "node": "Check Status Of Media Before Uploaded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Youtube upload": {
+      "main": [
+        [
+          {
+            "node": "Download the video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the video1": {
+      "main": [
+        [
+          {
+            "node": "Upload video to YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup video url": {
+      "main": [
+        [
+          {
+            "node": "insert_video_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start generating the video": {
+      "main": [
+        [
+          {
+            "node": "Successful start?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_data_from_db_2": {
+      "main": [
+        [
+          {
+            "node": "get_video_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_video_prompt": {
+      "main": [
+        [
+          {
+            "node": "Insert video_prompt to db",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_data_from_db_3": {
+      "main": [
+        [
+          {
+            "node": "get_video_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_video_url": {
+      "main": [
+        [
+          {
+            "node": "Upload video to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status Of Media Before Uploaded": {
+      "main": [
+        [
+          {
+            "node": "If media status is finished",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If media status is finished": {
+      "main": [
+        [
+          {
+            "node": "Post video post to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Check Status Of Media Before Uploaded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_edit_instruction": {
+      "main": [
+        [
+          {
+            "node": "Start generating the video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        [
+          {
+            "node": "get_reel_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post video post to Instagram": {
+      "main": [
+        []
+      ]
+    },
+    "Insert video_prompt to db": {
+      "main": [
+        [
+          {
+            "node": "Start generating the video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_reel_url": {
+      "main": [
+        [
+          {
+            "node": "insert_reel_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insert_reel_url": {
+      "main": [
+        [
+          {
+            "node": "Analyze video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insert_video_url": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_editing_flag": {
+      "main": [
+        [
+          {
+            "node": "What changes?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set task id1": {
+      "main": [
+        [
+          {
+            "node": "Get status of the video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Get status of the video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Successful start?1": {
+      "main": [
+        [
+          {
+            "node": "Set task id1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get status of the video1": {
+      "main": [
+        [
+          {
+            "node": "Route based on the status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route based on the status1": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Setup video url1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup video url1": {
+      "main": [
+        [
+          {
+            "node": "insert_video_url1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start generating the video1": {
+      "main": [
+        [
+          {
+            "node": "Successful start?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insert_video_url1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "4fffbeaa-e332-4977-9e73-7f18316b2969",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a378d4f395f5d624eb468dd0fa36c34206d13c11336387c9b35c1fcb4628cba2"
+  },
+  "id": "H73t9kLBuRZ_DW_Uo9WHD",
+  "tags": []
+}
